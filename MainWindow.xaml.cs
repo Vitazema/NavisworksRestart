@@ -47,10 +47,10 @@ namespace NwRestart
       };
 
       ServerList.ItemsSource = Servers;
-      CheckPingAsync();
+      StartCheckPingAsync();
     }
 
-    private void ButtonRestart_OnClick (object sender, RoutedEventArgs e)
+    private void ButtonRestart_OnClick(object sender, RoutedEventArgs e)
     {
       foreach (Server server in ServerList.Items)
       {
@@ -108,52 +108,25 @@ namespace NwRestart
       Start.IsEnabled = state;
     }
 
-    private async Task CheckPingAsync()
+    private async Task StartCheckPingAsync()
     {
       while (true)
       {
-        var pingTasks = Servers.Select(server =>
-        {
-          bool pingable = false;
-          using var ping = new Ping();
+        var pingTasks = Servers.ToDictionary(server => server, server =>
+         {
+           using var ping = new Ping();
+           return ping.SendPingAsync(server.Name);
+         });
 
-          return ping.SendPingAsync(server.Name);
-        });
-        await Task.WhenAll(pingTasks);
-        foreach (var pingReply in pingTasks)
+        await Task.WhenAll(pingTasks.Values);
+
+        foreach (var pingTask in pingTasks)
         {
-          var serverReplyName = pingReply.Result.Address;
-          var server = Servers.FirstOrDefault(s => s.Name == Dns.GetHostEntry(serverReplyName).HostName);
-          server.IsServiceOn = pingReply.Result.Status == IPStatus.Success;
+          pingTask.Key.IsServiceOn = pingTask.Value.Result.Status == IPStatus.Success;
         }
 
         await Task.Delay(TimeSpan.FromMilliseconds(10000));
       }
-    }
-  }
-
-  public static class Pinger
-  {
-    public static bool GetPingResponse(string machineAdress, int timeout = 3000)
-    {
-      bool pingable = false;
-      Ping pinger = new Ping();
-      try
-      {
-        pinger = new Ping();
-        PingReply reply = pinger.Send(machineAdress, timeout);
-        if (reply != null) pingable = reply.Status == IPStatus.Success;
-      }
-      catch (PingException exception)
-      {
-        // Discard ping exceptions and return false
-      }
-      finally
-      {
-        pinger?.Dispose();
-      }
-
-      return pingable;
     }
   }
 

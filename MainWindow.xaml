@@ -32,8 +32,12 @@
       </ListBox.ItemContainerStyle>
       <ListBox.ItemTemplate>
         <DataTemplate>
-          <CheckBox Content="{Binding Path=Name}"
-                    IsChecked="{Binding IsChecked}"/>
+          <StackPanel Orientation="Horizontal">
+            <TextBlock Text="{Binding Path=IsServiceOn, Mode=TwoWay}" HorizontalAlignment="Right"/>
+
+            <CheckBox Content="{Binding Path=Name}"
+                      IsChecked="{Binding IsChecked}"/>
+          </StackPanel>
         </DataTemplate>
       </ListBox.ItemTemplate>
     </ListBox>
