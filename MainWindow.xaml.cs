@@ -1,13 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Net.NetworkInformation;
 using System.Net.Security;
-using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -128,12 +126,5 @@ namespace NwRestart
         await Task.Delay(TimeSpan.FromMilliseconds(10000));
       }
     }
-  }
-
-  public class Server
-  {
-    public string Name { get; set; }
-    public bool IsServiceOn { get; set; }
-    public bool IsChecked { get; set; }
   }
 }

@@ -33,7 +33,8 @@
       <ListBox.ItemTemplate>
         <DataTemplate>
           <StackPanel Orientation="Horizontal">
-            <TextBlock Text="{Binding Path=IsServiceOn, Mode=TwoWay}" HorizontalAlignment="Right"/>
+            <TextBlock Text="{Binding Path=IsServiceOn, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Right"
+                       />
 
             <CheckBox Content="{Binding Path=Name}"
                       IsChecked="{Binding IsChecked}"/>
@@ -46,6 +47,6 @@
     <Button x:Name="Stop" Grid.Row="4" Margin="10"  Content="Stop" Click="ButtonStop_OnClick"></Button>
     <TextBox Grid.Row="5" x:Name="ConsoleBox"
              VerticalScrollBarVisibility="Auto"
-             TextWrapping="Wrap"></TextBox>
+             TextWrapping="Wrap"/>
   </Grid>
 </Window>
