@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Configuration;
 using System.Diagnostics;
 using System.Linq;
 using System.Net;
@@ -34,9 +35,9 @@ namespace NwRestart
       SelectedServers = new List<Server>();
 
       Servers = new ObservableCollection<Server>() {
-        new() {Name="vpp-nw-navis01"},
-        new() {Name="vpp-nw-navis02"},
-        //new() {Name="vpp-nw-navis03"},
+        new("vpp-nw-navis02"),
+        new("192.168.1.96"),
+        new("vpp-nw-navis03"),
         //new() {Name="vpp-nw-navis04"},
         //new() {Name="vpp-nw-navis05"},
         //new() {Name="vpp-nw-navis06"},
@@ -54,9 +55,9 @@ namespace NwRestart
       {
         if (server.IsChecked)
         {
-          SendServiceCommandAsync(server.Name, "stop");
+          SendServiceCommandAsync(server.IpAddress, "stop");
           Task.Delay(1000);
-          SendServiceCommandAsync(server.Name, "start");
+          SendServiceCommandAsync(server.IpAddress, "start");
         }
       }
     }
@@ -66,7 +67,7 @@ namespace NwRestart
       {
         if (server.IsChecked)
         {
-          SendServiceCommandAsync(server.Name, "start");
+          SendServiceCommandAsync(server.IpAddress, "start");
         }
       }
     }
@@ -74,14 +75,14 @@ namespace NwRestart
     {
       foreach (Server server in ServerList.Items)
       {
-        if (server.IsChecked)
+        if (server.IsChecked && server.IsServiceOn)
         {
-          SendServiceCommandAsync(server.Name, "stop");
+          SendServiceCommandAsync(server.IpAddress, "stop");
         }
       }
     }
 
-    public async void SendServiceCommandAsync(string serverName, string command)
+    public async void SendServiceCommandAsync(IPAddress serverName, string command)
     {
       IsEnableButtons(false);
 
@@ -113,7 +114,10 @@ namespace NwRestart
         var pingTasks = Servers.ToDictionary(server => server, server =>
          {
            using var ping = new Ping();
-           return ping.SendPingAsync(server.Name);
+
+             server.IpAddress = Dns.GetHostAddresses(server.Name)[0];
+             return ping.SendPingAsync(server.IpAddress);
+
          });
 
         await Task.WhenAll(pingTasks.Values);
