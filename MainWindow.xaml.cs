@@ -7,7 +7,6 @@ using System.Linq;
 using System.Net;
 using System.Net.NetworkInformation;
 using System.Net.Security;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
@@ -19,6 +18,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using static System.Console;
 
 namespace NwRestart
 {
@@ -32,6 +32,8 @@ namespace NwRestart
     public MainWindow()
     {
       InitializeComponent();
+      var textBoxOutputter = new TextBoxOutputter(ConsoleBox);
+      SetOut(textBoxOutputter);
       SelectedServers = new List<Server>();
 
       Servers = new ObservableCollection<Server>() {
@@ -103,15 +105,13 @@ namespace NwRestart
         Arguments = @$"\\{server.IpAddress} {command} Revit2NavisService",
         CreateNoWindow = true,
         UseShellExecute = false,
-        RedirectStandardOutput = true,
-        StandardOutputEncoding = Encoding.UTF8
-
+        RedirectStandardOutput = true
       };
-      ConsoleBox.AppendText($"{server.Name} ({server.IpAddress}) is {command}ing...\n");
+      WriteLine($"{server.Name} ({server.IpAddress}) is {command}ing..."); 
       var process = Process.Start(psi);
 
       var output = await process.StandardOutput.ReadToEndAsync();
-      ConsoleBox.AppendText($"{server.Name} ({server.IpAddress}): {output}\n");
+      WriteLine($"{server.Name} ({server.IpAddress}): {output}");
       IsEnableButtons(true);
       return output;
     }
@@ -125,8 +125,7 @@ namespace NwRestart
         Arguments = $@"/r /m \\{server.IpAddress} /t 0",
         CreateNoWindow = true,
         UseShellExecute = false,
-        RedirectStandardOutput = true,
-        StandardOutputEncoding = Encoding.UTF8
+        RedirectStandardOutput = true
       };
       ConsoleBox.AppendText($"{server.Name} ({server.IpAddress}) is restarting...\n");
       var process = Process.Start(psi);
@@ -164,13 +163,6 @@ namespace NwRestart
 
         await Task.Delay(TimeSpan.FromMilliseconds(10000));
       }
-    }
-
-    public static string ConvertFromUtf8ToCp866(string str)
-    {
-      var bytes = Encoding.UTF8.GetBytes(str);
-      var newBytes = Encoding.Convert(  Encoding.UTF8, Encoding.GetEncoding(866), bytes);
-      return Encoding.GetEncoding(1251).GetString(newBytes);
     }
   }
 }

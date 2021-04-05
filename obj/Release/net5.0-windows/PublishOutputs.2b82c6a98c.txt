@@ -1,5 +1,0 @@
-U:\Coding\NwRestar\bin\Release\net5.0-windows\publish\NwRestart.exe
-U:\Coding\NwRestar\bin\Release\net5.0-windows\publish\NwRestart.dll
-U:\Coding\NwRestar\bin\Release\net5.0-windows\publish\NwRestart.deps.json
-U:\Coding\NwRestar\bin\Release\net5.0-windows\publish\NwRestart.runtimeconfig.json
-U:\Coding\NwRestar\bin\Release\net5.0-windows\publish\NwRestart.pdb
