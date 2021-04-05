@@ -15,6 +15,7 @@
     <Grid.RowDefinitions>
       <RowDefinition Height="auto"/>
       <RowDefinition Height="*"/>
+      <RowDefinition Height="20"/>
       <RowDefinition Height="50"/>
       <RowDefinition Height="50"/>
       <RowDefinition Height="50"/>
@@ -43,10 +44,11 @@
         </DataTemplate>
       </ListBox.ItemTemplate>
     </ListBox>
-    <Button x:Name="Restart" Grid.Row="2" Margin="10"  Content="Restart" Click="ButtonRestart_OnClick"></Button>
-    <Button x:Name="Start" Grid.Row="3" Margin="10"  Content="Start" Click="ButtonStart_OnClick"></Button>
-    <Button x:Name="Stop" Grid.Row="4" Margin="10"  Content="Stop" Click="ButtonStop_OnClick"></Button>
-    <TextBox Grid.Row="5" x:Name="ConsoleBox"
+    <TextBlock Grid.Row="2" Text="Revit2NavisService control:"></TextBlock>
+    <Button x:Name="Restart" Grid.Row="3" Margin="10,20,10,10"  Content="Restart" Click="ButtonRestart_OnClick"></Button>
+    <Button x:Name="Start" Grid.Row="4" Margin="10"  Content="Start" Click="ButtonStart_OnClick"></Button>
+    <Button x:Name="Stop" Grid.Row="5" Margin="10"  Content="Stop" Click="ButtonStop_OnClick"></Button>
+    <TextBox Grid.Row="6" x:Name="ConsoleBox"
              VerticalScrollBarVisibility="Auto"
              TextWrapping="Wrap"/>
   </Grid>

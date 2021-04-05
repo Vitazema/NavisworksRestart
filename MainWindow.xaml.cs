@@ -49,14 +49,13 @@ namespace NwRestart
       Task.Run(StartCheckPingAsync);
     }
 
-    private void ButtonRestart_OnClick(object sender, RoutedEventArgs e)
+    private async void ButtonRestart_OnClick(object sender, RoutedEventArgs e)
     {
       foreach (Server server in ServerList.Items)
       {
         if (server.IsChecked)
         {
-          SendServiceCommandAsync(server, "stop");
-          Task.Delay(1000);
+          await SendServiceCommandAsync(server, "stop");
           SendServiceCommandAsync(server, "start");
         }
       }
@@ -88,10 +87,13 @@ namespace NwRestart
       var wtf = btn.DataContext;
       ListBoxItem clickedListBoxItem = ServerList.ItemContainerGenerator.ContainerFromItem(wtf) as ListBoxItem;
       var server = clickedListBoxItem.Content as Server;
-      SendRestartCommandAsync(server);
+
+      var messageBoxResult = MessageBox.Show($"Перезагрузить сервер {server.Name}?", "Подтверждение перезагрузки сервера", MessageBoxButton.YesNo);
+      if (messageBoxResult == MessageBoxResult.Yes)
+        SendRestartCommandAsync(server);
     }
 
-    public async void SendServiceCommandAsync(Server server, string command)
+    public async Task<string> SendServiceCommandAsync(Server server, string command)
     {
       IsEnableButtons(false);
 
@@ -101,14 +103,17 @@ namespace NwRestart
         Arguments = @$"\\{server.IpAddress} {command} Revit2NavisService",
         CreateNoWindow = true,
         UseShellExecute = false,
-        RedirectStandardOutput = true
+        RedirectStandardOutput = true,
+        StandardOutputEncoding = Encoding.UTF8
+
       };
+      ConsoleBox.AppendText($"{server.Name} ({server.IpAddress}) is {command}ing...\n");
       var process = Process.Start(psi);
-      ConsoleBox.AppendText($"{server.Name}({server.IpAddress}) is {command}ing...\n");
 
       var output = await process.StandardOutput.ReadToEndAsync();
-      ConsoleBox.AppendText($"{server.Name}({server.IpAddress}): {output}");
+      ConsoleBox.AppendText($"{server.Name} ({server.IpAddress}): {output}\n");
       IsEnableButtons(true);
+      return output;
     }
 
     public async void SendRestartCommandAsync(Server server)
@@ -120,13 +125,13 @@ namespace NwRestart
         Arguments = $@"/r /m \\{server.IpAddress} /t 0",
         CreateNoWindow = true,
         UseShellExecute = false,
-        RedirectStandardOutput = true
+        RedirectStandardOutput = true,
+        StandardOutputEncoding = Encoding.UTF8
       };
+      ConsoleBox.AppendText($"{server.Name} ({server.IpAddress}) is restarting...\n");
       var process = Process.Start(psi);
-      ConsoleBox.AppendText($"{server.Name}({server.IpAddress}) is restarting...\n");
-
       var output = await process.StandardOutput.ReadToEndAsync();
-      ConsoleBox.AppendText($"{server.Name}({server.IpAddress}) finished restart command: {output}");
+      ConsoleBox.AppendText($"{server.Name} ({server.IpAddress}) finished restart command: {output}\n");
       IsEnableButtons(true);
     }
 
@@ -159,6 +164,13 @@ namespace NwRestart
 
         await Task.Delay(TimeSpan.FromMilliseconds(10000));
       }
+    }
+
+    public static string ConvertFromUtf8ToCp866(string str)
+    {
+      var bytes = Encoding.UTF8.GetBytes(str);
+      var newBytes = Encoding.Convert(  Encoding.UTF8, Encoding.GetEncoding(866), bytes);
+      return Encoding.GetEncoding(1251).GetString(newBytes);
     }
   }
 }
