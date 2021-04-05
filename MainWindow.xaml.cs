@@ -46,7 +46,7 @@ namespace NwRestart
       };
 
       ServerList.ItemsSource = Servers;
-      StartCheckPingAsync();
+      Task.Run(StartCheckPingAsync);
     }
 
     private void ButtonRestart_OnClick(object sender, RoutedEventArgs e)
@@ -55,9 +55,9 @@ namespace NwRestart
       {
         if (server.IsChecked)
         {
-          SendServiceCommandAsync(server.IpAddress, "stop");
+          SendServiceCommandAsync(server, "stop");
           Task.Delay(1000);
-          SendServiceCommandAsync(server.IpAddress, "start");
+          SendServiceCommandAsync(server, "start");
         }
       }
     }
@@ -67,7 +67,7 @@ namespace NwRestart
       {
         if (server.IsChecked)
         {
-          SendServiceCommandAsync(server.IpAddress, "start");
+          SendServiceCommandAsync(server, "start");
         }
       }
     }
@@ -77,51 +77,56 @@ namespace NwRestart
       {
         if (server.IsChecked && server.IsServiceOn)
         {
-          SendServiceCommandAsync(server.IpAddress, "stop");
+          SendServiceCommandAsync(server, "stop");
         }
       }
     }
 
     private async void ButtonServerRestart_OnClick(object sender, RoutedEventArgs e)
     {
+      var btn = sender as Button;
+      var wtf = btn.DataContext;
+      ListBoxItem clickedListBoxItem = ServerList.ItemContainerGenerator.ContainerFromItem(wtf) as ListBoxItem;
+      var server = clickedListBoxItem.Content as Server;
+      SendRestartCommandAsync(server);
     }
 
-    public async void SendServiceCommandAsync(IPAddress server, string command)
+    public async void SendServiceCommandAsync(Server server, string command)
     {
       IsEnableButtons(false);
 
       ProcessStartInfo psi = new ProcessStartInfo()
       {
         FileName = "sc",
-        Arguments = @$"\\{server} {command} Revit2NavisService",
+        Arguments = @$"\\{server.IpAddress} {command} Revit2NavisService",
         CreateNoWindow = true,
         UseShellExecute = false,
         RedirectStandardOutput = true
       };
       var process = Process.Start(psi);
-      ConsoleBox.AppendText($"{server} is {command}ing...\n");
+      ConsoleBox.AppendText($"{server.Name}({server.IpAddress}) is {command}ing...\n");
 
       var output = await process.StandardOutput.ReadToEndAsync();
-      ConsoleBox.AppendText($"{server}: {output}");
+      ConsoleBox.AppendText($"{server.Name}({server.IpAddress}): {output}");
       IsEnableButtons(true);
     }
 
-    public async void SendRestartCommandAsync(IPAddress server)
+    public async void SendRestartCommandAsync(Server server)
     {
       IsEnableButtons(false);
       var psi = new ProcessStartInfo()
       {
         FileName = "shutdown",
-        Arguments = $@"/r /m \\{server} /t 0",
+        Arguments = $@"/r /m \\{server.IpAddress} /t 0",
         CreateNoWindow = true,
         UseShellExecute = false,
         RedirectStandardOutput = true
       };
       var process = Process.Start(psi);
-      ConsoleBox.AppendText($"{server} is restarting...\n");
+      ConsoleBox.AppendText($"{server.Name}({server.IpAddress}) is restarting...\n");
 
       var output = await process.StandardOutput.ReadToEndAsync();
-      ConsoleBox.AppendText($"{server}: {output}");
+      ConsoleBox.AppendText($"{server.Name}({server.IpAddress}) finished restart command: {output}");
       IsEnableButtons(true);
     }
 

@@ -38,7 +38,7 @@
 
             <CheckBox Content="{Binding Path=Name}"
                       IsChecked="{Binding IsChecked}"/>
-            <Button x:Name="ServerRestart" Content="Restart server" Click="ButtonServerRestart_OnClick"></Button>
+            <Button x:Name="ServerRestart" Content="Restart server" Click="ButtonServerRestart_OnClick" HorizontalAlignment="Right"></Button>
           </StackPanel>
         </DataTemplate>
       </ListBox.ItemTemplate>
