@@ -35,14 +35,14 @@ namespace NwRestart
       SelectedServers = new List<Server>();
 
       Servers = new ObservableCollection<Server>() {
+        new("vpp-nw-navis01"),
         new("vpp-nw-navis02"),
-        new("192.168.1.96"),
         new("vpp-nw-navis03"),
-        //new() {Name="vpp-nw-navis04"},
-        //new() {Name="vpp-nw-navis05"},
-        //new() {Name="vpp-nw-navis06"},
-        //new() {Name="vpp-nw-navis07"},
-        //new() {Name="vpp-nw-navis08"}
+        new("vpp-nw-navis04"),
+        new("vpp-nw-navis05"),
+        new("vpp-nw-navis06"),
+        new("vpp-nw-navis07"),
+        new("vpp-nw-navis08"),
       };
 
       ServerList.ItemsSource = Servers;
@@ -82,21 +82,46 @@ namespace NwRestart
       }
     }
 
-    public async void SendServiceCommandAsync(IPAddress serverName, string command)
+    private async void ButtonServerRestart_OnClick(object sender, RoutedEventArgs e)
+    {
+    }
+
+    public async void SendServiceCommandAsync(IPAddress server, string command)
     {
       IsEnableButtons(false);
 
       ProcessStartInfo psi = new ProcessStartInfo()
       {
         FileName = "sc",
-        Arguments = @$"\\{serverName} {command} Revit2NavisService",
+        Arguments = @$"\\{server} {command} Revit2NavisService",
         CreateNoWindow = true,
         UseShellExecute = false,
         RedirectStandardOutput = true
       };
       var process = Process.Start(psi);
+      ConsoleBox.AppendText($"{server} is {command}ing...\n");
+
       var output = await process.StandardOutput.ReadToEndAsync();
-      ConsoleBox.AppendText($"{serverName}: {output}");
+      ConsoleBox.AppendText($"{server}: {output}");
+      IsEnableButtons(true);
+    }
+
+    public async void SendRestartCommandAsync(IPAddress server)
+    {
+      IsEnableButtons(false);
+      var psi = new ProcessStartInfo()
+      {
+        FileName = "shutdown",
+        Arguments = $@"/r /m \\{server} /t 0",
+        CreateNoWindow = true,
+        UseShellExecute = false,
+        RedirectStandardOutput = true
+      };
+      var process = Process.Start(psi);
+      ConsoleBox.AppendText($"{server} is restarting...\n");
+
+      var output = await process.StandardOutput.ReadToEndAsync();
+      ConsoleBox.AppendText($"{server}: {output}");
       IsEnableButtons(true);
     }
 
@@ -115,8 +140,8 @@ namespace NwRestart
          {
            using var ping = new Ping();
 
-             server.IpAddress = Dns.GetHostAddresses(server.Name)[0];
-             return ping.SendPingAsync(server.IpAddress);
+           server.IpAddress = Dns.GetHostAddresses(server.Name)[0];
+           return ping.SendPingAsync(server.IpAddress);
 
          });
 
