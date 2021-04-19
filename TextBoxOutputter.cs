@@ -23,6 +23,6 @@ namespace NwRestart
       }));
     }
  
-    public override Encoding Encoding => Encoding.UTF8;
+    public override Encoding Encoding => Encoding.GetEncoding(855);
   }
 }

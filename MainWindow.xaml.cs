@@ -5,6 +5,7 @@ using System.Configuration;
 using System.Diagnostics;
 using System.Linq;
 using System.Net;
+using System.Text;
 using System.Net.NetworkInformation;
 using System.Net.Security;
 using System.Threading;
@@ -19,6 +20,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using static System.Console;
+using System.Globalization;
 
 namespace NwRestart
 {
@@ -105,7 +107,8 @@ namespace NwRestart
         Arguments = @$"\\{server.IpAddress} {command} Revit2NavisService",
         CreateNoWindow = true,
         UseShellExecute = false,
-        RedirectStandardOutput = true
+        RedirectStandardOutput = true,
+        StandardOutputEncoding = Encoding.UTF8
       };
       WriteLine($"{server.Name} ({server.IpAddress}) is {command}ing..."); 
       var process = Process.Start(psi);
@@ -125,7 +128,8 @@ namespace NwRestart
         Arguments = $@"/r /m \\{server.IpAddress} /t 0",
         CreateNoWindow = true,
         UseShellExecute = false,
-        RedirectStandardOutput = true
+        RedirectStandardOutput = true,
+        StandardOutputEncoding = Encoding.UTF8
       };
       ConsoleBox.AppendText($"{server.Name} ({server.IpAddress}) is restarting...\n");
       var process = Process.Start(psi);
